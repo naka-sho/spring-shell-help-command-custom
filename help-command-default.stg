@@ -1,0 +1,89 @@
+// NAME
+name(commandName, commandShortDesc) ::= <<
+"name": {
+  "command": "<commandName>",
+  "description": "<commandShortDesc>"
+}
+>>
+
+// SYNOPSIS
+synopsisOption(option) ::= <%
+{
+  "required": <option.required>,
+  "argument": "<first(option.arguments)>",
+  "type": "<option.type>"
+}
+%>
+
+synopsis(commandName, options) ::= <<
+"synopsis": {
+  "command": "<commandName>",
+  "options": [
+    <options:synopsisOption(); separator=",\n">
+  ]
+}
+>>
+
+// OPTIONS
+arguments(arguments) ::= <<
+[<arguments:{ a | "<a>"}; separator=", ">]
+>>
+
+type(type) ::= <<
+"<type>"
+>>
+
+required(option) ::= <%
+{
+  "required": <option.required>,
+  <if(option.hasDefaultValue)>
+  "defaultValue": "<option.defaultValue>",
+  <endif>
+  "status": "<if(option.required)>Mandatory<else>Optional<endif>"
+}
+%>
+
+option(option) ::= <<
+{
+  "arguments": <arguments(option.arguments)>,
+  "type": <type(option.type)>,
+  "description": "<option.description>",
+  "requirement": <required(option)>
+}
+>>
+
+options(options) ::= <<
+"options": [
+  <options:option(); separator=",\n">
+]
+>>
+
+// AVAILABILITY
+availability(availability) ::= <<
+<if(!availability.available)>
+"availability": {
+  "available": false,
+  "reason": "<availability.reason>"
+}
+<endif>
+>>
+
+// ALIASES
+aliases(aliases) ::= <<
+<if(aliases)>
+"aliases": [
+  <aliases:{ a | "<a>"}; separator=", ">
+]
+<endif>
+>>
+
+// main
+main(model) ::= <<
+{
+  <name(model.name, model.description)>,
+  <synopsis(model.name, model.parameters)>,
+  <options(model.parameters)>
+  <availability(model.availability)>
+  <if(model.aliases)>,<aliases(model.aliases)><endif>
+}
+>>

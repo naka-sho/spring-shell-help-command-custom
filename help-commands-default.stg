@@ -1,0 +1,63 @@
+name() ::= <<
+{
+  "title": "AVAILABLE COMMANDS",
+>>
+
+availability(availability) ::= <%
+<if(!availability.available)>"unavailable": true,<endif>
+%>
+
+availabilityDesc(hasUnavailableCommands) ::= <<
+<if(hasUnavailableCommands)>
+  "footer": {
+    "unavailableNote": "Commands marked with (*) are currently unavailable.",
+    "helpNote": "Type `help <command>` to learn more."
+  }
+<endif>
+>>
+
+commandName(command) ::= <%
+"name": "<command.name>"<if(command.aliases)>,
+"aliases": [<command.aliases:{ a | "<a>"}; separator=", ">]<endif>
+%>
+
+command(command) ::= <<
+{
+  <availability(command.availability)>
+  <commandName(command)>,
+  "description": "<command.description>"
+}
+>>
+
+commandGroup(commandGroup) ::= <<
+{
+  "group": "<commandGroup.group>",
+  "commands": [
+    <commandGroup.commands:command(); separator=",\n">
+  ]
+}
+>>
+
+groups(groups) ::= <<
+  "groups": [
+  <groups:commandGroup(); separator=",\n">
+]
+>>
+
+flat(commands) ::= <<
+"commands": [
+  <commands:command(); separator=",\n">
+]
+>>
+
+main(model) ::= <<
+{
+  <name()>
+  <if(model.showGroups)>
+  <groups(model.groups)>
+  <else>
+  <flat(model.commands)>
+  <endif>
+  <availabilityDesc(model.hasUnavailableCommands)>
+}
+>>
